@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -19,8 +20,36 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+app.use('/[0-9]{5}', indexRouter);
 app.use('/users', usersRouter);
+app.get('/first_template',(req,res)=>res.render('first_view'));
+
+//middlewares
+app.use(function(req, res, next){
+   console.log("Start");
+   next();
+});
+
+//Route handler
+app.get('/', function(req, res, next){
+   res.send("Middle");
+   next();
+});
+
+app.use('/', function(req, res){
+   console.log('End');
+});
+
+//passing values to pug files
+app.get('/dynamic_view', function(req, res){
+   res.render('dynamic', {
+      name: "TutorialsPoint", 
+      url:"http://www.tutorialspoint.com"
+   });
+});
+
+
+app.get('*',(req,res)=>res.send("Invalid URL"));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
